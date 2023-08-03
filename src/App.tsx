@@ -1,24 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import FormatterInput from "./components/FormatterInput";
+import FormatterOutput from "./components/FormatterOutput";
+import Validation from "./components/Validation";
 
 function App() {
+  const [inputValue, setInputValue] = React.useState("");
+  const [jsonValue, setJsonValue] = React.useState("");
+  const [validationErrorMessage, setValidationErrorMessage] =
+    React.useState("");
+
+  React.useEffect(() => {
+    try {
+      const parsed = JSON.parse(inputValue);
+      setValidationErrorMessage("");
+      setJsonValue(parsed);
+    } catch (error: any) {
+      setJsonValue("");
+      setValidationErrorMessage(error.message);
+    }
+  }, [inputValue]);
+
+  const handleChange = (e: any): void => {
+    const { value } = e.target;
+    setInputValue(value);
+    setValidationErrorMessage("");
+  };
+
+  const handleCopy = (): void => {
+    navigator.clipboard.writeText(JSON.stringify(jsonValue, null, 4));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="info-container">
+        <h1 className="heading">JSON Formatter</h1>
+      </div>
+      <div className="main-container">
+        <div className="formatter-container">
+          <FormatterInput value={inputValue} handleChange={handleChange} />
+          <FormatterOutput json={jsonValue}>
+            {!!inputValue ? (
+              <Validation validationErrorMessage={validationErrorMessage} />
+            ) : null}
+          </FormatterOutput>
+        </div>
+        <div className="formatter-controllers">
+          <button className="copy-button" onClick={handleCopy} disabled={!jsonValue}>
+            Copy
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
